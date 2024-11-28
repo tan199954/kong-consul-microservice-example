@@ -1,15 +1,15 @@
 @echo off
 
-REM Kiểm tra xem Docker image hashicorp/consul:latest có tồn tại không
+REM Check if the Docker image hashicorp/consul:latest exists
 docker images hashicorp/consul:latest --format "{{.Repository}}:{{.Tag}}" | findstr "hashicorp/consul:latest" > nul
 if %errorlevel%==0 (
-    echo "Docker image hashicorp/consul:latest đã tồn tại, bỏ qua bước docker pull."
+    echo "Docker image hashicorp/consul:latest already exists. Skipping docker pull."
 ) else (
-    echo "Docker image hashicorp/consul:latest chưa tồn tại, thực hiện docker pull."
+    echo "Docker image hashicorp/consul:latest does not exist. Starting docker docker pull."
     docker pull hashicorp/consul
 )
 
-REM Tiếp tục chạy container
+REM Continue to run the container
 
 docker run --name consul-server ^
 -d ^

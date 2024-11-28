@@ -1,16 +1,16 @@
 @echo off
 
 
-REM Đọc file .env và lấy giá trị của PUBLIC_SERVICE_ADDRESS
+REM Read .env file and get the value of the PUBLIC_SERVICE_ADDRESS variable
 for /f "delims=" %%i in ('findstr "PUBLIC_SERVICE_ADDRESS" .env') do set %%i
 
-REM Kiểm tra nếu PUBLIC_SERVICE_ADDRESS không được đọc
+REM Check if PUBLIC_SERVICE_ADDRESS exists in the .env file
 if "%PUBLIC_SERVICE_ADDRESS%"=="" (
-    echo "Không tìm thấy biến PUBLIC_SERVICE_ADDRESS trong file .env"
+    echo "Could not find the PUBLIC_SERVICE_ADDRESS variable in the .env file."
     exit /b 1
 )
 
-REM Lấy danh sách các cổng đã tồn tại từ PUBLIC_SERVICE_ADDRESS
+REM Extract USED_PORTS from PUBLIC_SERVICE_ADDRESS
 setlocal enabledelayedexpansion
 set USED_PORTS=
 
@@ -18,48 +18,48 @@ for /f "tokens=2 delims=:" %%A in ("%PUBLIC_SERVICE_ADDRESS%") do (
     set USED_PORTS=%%A
 )
 
-REM Tạo cổng ngẫu nhiên từ 1024 đến 65535
+REM Generate a random port between 1024 and 65535
 :generate_random_port
 set /a PUBLIC_SERVICE_PORT=%RANDOM% * 55312 / 32768 + 1024
 
-REM Kiểm tra xem cổng đã tồn tại hay chưa
+REM Check if the random port is already in use
 netstat -an | find ":%PUBLIC_SERVICE_PORT%" >nul
 if not errorlevel 1 (
-    echo "Cổng %PUBLIC_SERVICE_PORT% đã được sử dụng. Tạo lại..."
+    echo "Port %PUBLIC_SERVICE_PORT% is in USED_PORTS. Generating a new random port."
     goto :generate_random_port
 )
 
-REM Kiểm tra xem cổng có nằm trong USED_PORTS không
+REM Check if the random port is in USED_PORTS
 echo %USED_PORTS% | find "%PUBLIC_SERVICE_PORT%" >nul
 if not errorlevel 1 (
-    echo "Cổng %PUBLIC_SERVICE_PORT% nằm trong danh sách cổng đã sử dụng. Tạo lại..."
+    echo "Port %PUBLIC_SERVICE_PORT% is in USED_PORTS. Generating a new random port."
     goto :generate_random_port
 )
 
-REM Gán cổng ngẫu nhiên đã tạo vào PUBLIC_SERVICE_PORT
-echo "Cổng ngẫu nhiên đã chọn: %PUBLIC_SERVICE_PORT%"
+REM Select the random port for PUBLIC_SERVICE_PORT
+echo "Selected random port: %PUBLIC_SERVICE_PORT%"
 
-REM Đọc file .env và lấy giá trị của CONSUL_SERVER
+REM Read the .env file and get the value of the CONSUL_SERVER variable
 for /f "delims=" %%i in ('findstr "CONSUL_SERVER" .env') do set %%i
 
-REM Kiểm tra nếu biến môi trường không được đọc
+REM Check if CONSUL_SERVER exists in the environment
 if "%CONSUL_SERVER%"=="" (
-    echo "Không tìm thấy biến CONSUL_SERVER trong file .env"
+    echo "Could not find the CONSUL_SERVER variable in the .env file."
     exit /b 1
 )
 
-echo "Sử dụng địa chỉ Consul Server: %CONSUL_SERVER%"
+echo "Using Consul Server IP address: %CONSUL_SERVER%"
 
-REM Kiểm tra xem Docker image user_service_image:latest có tồn tại không
+REM Check if the Docker image user_service_image:latest exists
 docker images user_service_image:latest --format "{{.Repository}}:{{.Tag}}" | findstr "user_service_image:latest" > nul
 if %errorlevel%==0 (
-    echo "Docker image user_service_image:latest đã tồn tại, bỏ qua bước docker build."
+    echo "Docker image user_service_image:latest already exists. Skipping docker build."
 ) else (
-    echo "Docker image user_service_image:latest chưa tồn tại, thực hiện docker build."
+    echo "Docker image user_service_image:latest does not exist. Starting docker build."
     docker build -t user_service_image .
 )
 
-REM Tiếp tục chạy container
+REM Continue to run the container
 
 docker run -d ^
 --name user_service ^
@@ -70,4 +70,3 @@ docker run -d ^
 -e PUBLIC_SERVICE_PORT=%PUBLIC_SERVICE_PORT% ^
 user_service_image ^
 sh -c "consul agent -node=user_service_node -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER -data-dir=/tmp/consul & python3 main.py"
-
