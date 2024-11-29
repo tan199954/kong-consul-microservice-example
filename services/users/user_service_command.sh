@@ -56,7 +56,14 @@ else
     docker build -t user_service_image .
 fi
 
-# Run the Docker container
+# Check if a container named user_service exists
+if docker ps -a --format "{{.Names}}" | grep -q "^user_service$"; then
+    echo "Docker container user_service already exists. Removing the container."
+    docker rm -f user_service
+fi
+
+# Run a new container
+echo "Running a new container user_service."
 docker run -d \
 --name user_service \
 -p $PUBLIC_SERVICE_PORT:$PUBLIC_SERVICE_PORT \

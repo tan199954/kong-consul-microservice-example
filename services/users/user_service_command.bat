@@ -59,8 +59,15 @@ if %errorlevel%==0 (
     docker build -t user_service_image .
 )
 
-REM Continue to run the container
+REM Check if a container named user_service exists
+docker ps -a --format "{{.Names}}" | findstr "^user_service$" >nul
+if %errorlevel%==0 (
+    echo "Docker container user_service already exists. Removing the container."
+    docker rm -f user_service
+)
 
+REM Run a new container
+echo "Running a new container user_service."
 docker run -d ^
 --name user_service ^
 -p %PUBLIC_SERVICE_PORT%:%PUBLIC_SERVICE_PORT% ^
