@@ -10,8 +10,14 @@ fi
 
 # Check if a container named consul-server exists
 if docker ps -a --format "{{.Names}}" | grep -q "^consul-server$"; then
-    echo "Docker container consul-server already exists. Starting the container."
-    docker start consul-server
+    # Container exists, check if it's running
+    isRunning=$(docker inspect -f "{{.State.Running}}" consul-server)
+    if [ "$isRunning" = "true" ]; then
+        echo "Docker container consul-server is already running."
+    else
+        echo "Docker container consul-server exists but is not running. Starting the container."
+        docker start consul-server
+    fi
 else
     echo "Docker container consul-server does not exist. Running a new container."
     docker run --name consul-server \

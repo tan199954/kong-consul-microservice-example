@@ -10,10 +10,16 @@ if %errorlevel%==0 (
 )
 
 REM Check if a container named consul-server exists
-docker ps -a --format "{{.Names}}" | findstr "^consul-server$" >nul
+docker ps -a --format "{{.Names}}" | findstr "consul-server" >nul
 if %errorlevel%==0 (
-    echo Docker container consul-server already exists. Starting the container.
-    docker start consul-server
+    REM Container exists, check if it's running
+    for /f "tokens=*" %%i in ('docker inspect -f "{{.State.Running}}" consul-server') do set isRunning=%%i
+    if "%isRunning%"=="true" (
+        echo Docker container consul-server is already running.
+    ) else (
+        echo Docker container consul-server exists but is not running. Starting the container.
+        docker start consul-server
+    )
 ) else (
     echo Docker container consul-server does not exist. Running a new container.
     docker run --name consul-server ^
