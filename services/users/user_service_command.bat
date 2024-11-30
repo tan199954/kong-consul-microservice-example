@@ -60,7 +60,7 @@ if %errorlevel%==0 (
 )
 
 REM Check if a container named user_service exists
-docker ps -a --format "{{.Names}}" | findstr "^user_service$" >nul
+docker ps -a --format "{{.Names}}" | findstr "user_service" >nul
 if %errorlevel%==0 (
     echo "Docker container user_service already exists. Removing the container."
     docker rm -f user_service
