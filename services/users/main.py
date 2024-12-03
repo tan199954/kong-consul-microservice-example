@@ -5,6 +5,11 @@ import requests
 from contextlib import asynccontextmanager
 import os
 
+
+# Lấy giá trị biến môi trường
+PUBLIC_SERVICE_ADDRESS = os.getenv("PUBLIC_SERVICE_ADDRESS")
+PUBLIC_SERVICE_PORT = int(os.getenv("PUBLIC_SERVICE_PORT"))
+
 # Fake database
 fake_db = [
     {"id": 1, "name": "Alice", "email": "alice@example.com"},
@@ -20,11 +25,9 @@ class User(BaseModel):
     
 CONSUL_HOST = "127.0.0.1"  # Địa chỉ của Consul Client (máy cục bộ)
 CONSUL_PORT = 8500         # Cổng của Consul Client
-SERVICE_ID = "user_service_id"
+SERVICE_ID = f"user_service_{PUBLIC_SERVICE_ADDRESS}_{str(PUBLIC_SERVICE_PORT)}"
 SERVICE_NAME = "user_service"
-# Lấy giá trị biến môi trường
-PUBLIC_SERVICE_ADDRESS = os.getenv("PUBLIC_SERVICE_ADDRESS")
-PUBLIC_SERVICE_PORT = int(os.getenv("PUBLIC_SERVICE_PORT"))
+
 
 def register_service():
     """
@@ -39,7 +42,8 @@ def register_service():
         "Check": {
             "HTTP": f"http://{PUBLIC_SERVICE_ADDRESS}:{PUBLIC_SERVICE_PORT}/health",
             "Interval": "10s",
-            "Timeout": "5s"
+            "Timeout": "5s",
+            "DeregisterCriticalServiceAfter": "1m",
         }
     }
     response = requests.put(url, json=payload)
@@ -71,7 +75,10 @@ async def lifespan(app: FastAPI):
     deregister_service()
     
 # Tạo ứng dụng FastAPI
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan, 
+    openapi_prefix=f"/{SERVICE_NAME}"
+    )
 
 @app.get("/health")
 def health_check():
@@ -79,7 +86,7 @@ def health_check():
 
 @app.get("/")
 def read_root():
-    return {"message": "User Service is running"}
+    return {"message": f"User Service is running in {PUBLIC_SERVICE_PORT}"}
 
 # Endpoint GET: Lấy danh sách tất cả người dùng
 @app.get("/users", response_model=List[User])

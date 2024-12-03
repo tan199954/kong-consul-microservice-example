@@ -50,30 +50,24 @@ if "%CONSUL_SERVER%"=="" (
 
 echo "Using Consul Server IP address: %CONSUL_SERVER%"
 
-REM Check if the Docker image user_service_image:latest exists
-docker images user_service_image:latest --format "{{.Repository}}:{{.Tag}}" | findstr "user_service_image:latest" > nul
+REM Check if the Docker image user-service_image:latest exists
+docker images user-service-image:latest --format "{{.Repository}}:{{.Tag}}" | findstr "user-service-image:latest" > nul
 if %errorlevel%==0 (
-    echo "Docker image user_service_image:latest already exists. Skipping docker build."
+    echo "Docker image user-service-image:latest already exists. Skipping docker build."
 ) else (
-    echo "Docker image user_service_image:latest does not exist. Starting docker build."
-    docker build -t user_service_image .
+    echo "Docker image user-service-image:latest does not exist. Starting docker build."
+    docker build -t user-service-image .
 )
 
-REM Check if a container named user_service exists
-docker ps -a --format "{{.Names}}" | findstr "user_service" >nul
-if %errorlevel%==0 (
-    echo "Docker container user_service already exists. Removing the container."
-    docker rm -f user_service
-)
 
 REM Run a new container
-echo "Running a new container user_service."
+echo "Running a new container user-service."
 docker run -d ^
---name user_service ^
+--name user-service-%PUBLIC_SERVICE_ADDRESS%-%PUBLIC_SERVICE_PORT% ^
 -p %PUBLIC_SERVICE_PORT%:%PUBLIC_SERVICE_PORT% ^
 -e "CONSUL_LOCAL_CONFIG={\"leave_on_terminate\": true, \"ui_config\": {\"enabled\": true}}" ^
 -e CONSUL_SERVER=%CONSUL_SERVER% ^
 -e PUBLIC_SERVICE_ADDRESS=%PUBLIC_SERVICE_ADDRESS% ^
 -e PUBLIC_SERVICE_PORT=%PUBLIC_SERVICE_PORT% ^
-user_service_image ^
-sh -c "consul agent -node=user_service_node -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER -data-dir=/tmp/consul & python3 main.py"
+user-service-image ^
+sh -c "consul agent -node=user_service_${PUBLIC_SERVICE_ADDRESS}_${PUBLIC_SERVICE_PORT} -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER -data-dir=/tmp/consul & python3 main.py"
