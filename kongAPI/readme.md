@@ -11,6 +11,12 @@ echo CONSUL_DNS=Your_Consul_DNS > .env
 echo CONSUL_SERVER_ADDRESS=Your_Consul_Server_Addr >> .env
 echo KONG_ADMIN_ADDRESS=Your_Kong_Admin_Addr >> .env
 ```
+- Example for .env file:
+```env
+CONSUL_DNS=192.168.1.45:8600
+CONSUL_SERVER_ADDRESS=http://localhost:8500
+KONG_ADMIN_ADDRESS=http://localhost:8001
+```
 - Run Kong database in Docker
 ```console
 kong_database_cmd.bat

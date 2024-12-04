@@ -9,6 +9,11 @@ cd services\users
 echo CONSUL_SERVER_IP=Your_CONSUL_SERVER_IP > .env
 echo PUBLIC_SERVICE_IP=Your_Public_Service_Ip >> .env
 ```
+- Example for .env file:
+```env
+CONSUL_SERVER_IP=192.168.1.45
+PUBLIC_SERVICE_IP=192.168.1.45
+```
 - Run service on docker
 ```console
 user_service_command.bat
