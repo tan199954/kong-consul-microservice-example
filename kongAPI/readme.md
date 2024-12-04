@@ -55,7 +55,13 @@ pip install -r requirements.txt
 python main.py
 ```
 
+# Result:
+Access http://localhost:8000/user_service/docs. If you see the result as shown in the image below, it means the installation was successful.
+![kong_fastapi_docs_image](./assets/kong_fastapi_docs.png)
+
 # Error:
 Sometimes you may encounter an error like the image below. Don't worry, try again 5 minutes later.
 
 ![Error Image](./assets/error.png)
+
+
