@@ -1,5 +1,5 @@
 # Sử dụng image Consul làm base
-FROM hashicorp/consul:latest
+FROM hashicorp/consul:1.20.1
 
 # Cài đặt Python và pip trên Alpine
 RUN apk add --no-cache python3 py3-pip
