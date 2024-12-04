@@ -7,7 +7,7 @@ import os
 
 
 # Lấy giá trị biến môi trường
-PUBLIC_SERVICE_ADDRESS = os.getenv("PUBLIC_SERVICE_ADDRESS")
+PUBLIC_SERVICE_IP = os.getenv("PUBLIC_SERVICE_IP")
 PUBLIC_SERVICE_PORT = int(os.getenv("PUBLIC_SERVICE_PORT"))
 
 # Fake database
@@ -25,7 +25,7 @@ class User(BaseModel):
     
 CONSUL_HOST = "127.0.0.1"  # Địa chỉ của Consul Client (máy cục bộ)
 CONSUL_PORT = 8500         # Cổng của Consul Client
-SERVICE_ID = f"user_service_{PUBLIC_SERVICE_ADDRESS}_{str(PUBLIC_SERVICE_PORT)}"
+SERVICE_ID = f"user_service_{PUBLIC_SERVICE_IP}_{str(PUBLIC_SERVICE_PORT)}"
 SERVICE_NAME = "user_service"
 
 
@@ -37,10 +37,10 @@ def register_service():
     payload = {
         "ID": SERVICE_ID,
         "Name": SERVICE_NAME,
-        "Address": PUBLIC_SERVICE_ADDRESS,
+        "Address": PUBLIC_SERVICE_IP,
         "Port": PUBLIC_SERVICE_PORT,
         "Check": {
-            "HTTP": f"http://{PUBLIC_SERVICE_ADDRESS}:{PUBLIC_SERVICE_PORT}/health",
+            "HTTP": f"http://{PUBLIC_SERVICE_IP}:{PUBLIC_SERVICE_PORT}/health",
             "Interval": "10s",
             "Timeout": "5s",
             "DeregisterCriticalServiceAfter": "1m",

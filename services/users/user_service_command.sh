@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Read .env file and get the value of PUBLIC_SERVICE_ADDRESS variable
-PUBLIC_SERVICE_ADDRESS=$(grep "PUBLIC_SERVICE_ADDRESS" .env | cut -d '=' -f2)
+# Read .env file and get the value of PUBLIC_SERVICE_IP variable
+PUBLIC_SERVICE_IP=$(grep "PUBLIC_SERVICE_IP" .env | cut -d '=' -f2)
 
-# Check if PUBLIC_SERVICE_ADDRESS exists in the .env file
-if [[ -z "$PUBLIC_SERVICE_ADDRESS" ]]; then
-    echo "Could not find the PUBLIC_SERVICE_ADDRESS variable in the .env file."
+# Check if PUBLIC_SERVICE_IP exists in the .env file
+if [[ -z "$PUBLIC_SERVICE_IP" ]]; then
+    echo "Could not find the PUBLIC_SERVICE_IP variable in the .env file."
     exit 1
 fi
 
-# Extract USED_PORTS from PUBLIC_SERVICE_ADDRESS
-USED_PORTS=$(echo "$PUBLIC_SERVICE_ADDRESS" | cut -d ':' -f2)
+# Extract USED_PORTS from PUBLIC_SERVICE_IP
+USED_PORTS=$(echo "$PUBLIC_SERVICE_IP" | cut -d ':' -f2)
 
 # Generate a random port between 1024 and 65535
 generate_random_port() {
@@ -69,7 +69,7 @@ docker run -d \
 -p $PUBLIC_SERVICE_PORT:$PUBLIC_SERVICE_PORT \
 -e "CONSUL_LOCAL_CONFIG={\"leave_on_terminate\": true, \"ui_config\": {\"enabled\": true}}" \
 -e CONSUL_SERVER=$CONSUL_SERVER \
--e PUBLIC_SERVICE_ADDRESS=$PUBLIC_SERVICE_ADDRESS \
+-e PUBLIC_SERVICE_IP=$PUBLIC_SERVICE_IP \
 -e PUBLIC_SERVICE_PORT=$PUBLIC_SERVICE_PORT \
 user_service_image \
 sh -c "consul agent -node=user_service_node -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER -data-dir=/tmp/consul & python3 main.py"

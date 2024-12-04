@@ -1,8 +1,8 @@
 # Windows:
 - Create .env file:
 ```console
-echo CONSUL_SERVER_ADDRESS=Your_CONSUL_SERVER_ADDRESS > .env
-echo PUBLIC_SERVICE_ADDRESS=Your_Public_Service_Addres >> .env
+echo CONSUL_SERVER_IP=Your_CONSUL_SERVER_IP > .env
+echo PUBLIC_SERVICE_IP=Your_Public_Service_Ip >> .env
 ```
 - Run service on docker
 ```console
@@ -12,8 +12,8 @@ user_service_command.bat
 # Linux:
 - Create .env file:
 ```console
-echo "CONSUL_SERVER_ADDRESS=Your_CONSUL_SERVER_ADDRESS" >> .env
-echo "PUBLIC_SERVICE_ADDRESS=Your_Public_Service_Addres" >> .env
+echo "CONSUL_SERVER_IP=Your_CONSUL_SERVER_IP" >> .env
+echo "PUBLIC_SERVICE_IP=Your_Public_Service_Ip" >> .env
 ```
 - Run service on docker
 ```console
