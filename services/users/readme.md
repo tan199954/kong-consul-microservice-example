@@ -31,3 +31,7 @@ echo "PUBLIC_SERVICE_IP=Your_Public_Service_Ip" >> .env
 chmod +x user_service_command.sh
 ./user_service_command.sh
 ```
+
+# Result:
+Access http://localhost:8500/ui/dc1/services. If you see the result as shown in the image below, it means the installation was successful.
+![consul_service_image](./assets/consul_service.png)
