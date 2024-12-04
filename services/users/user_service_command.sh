@@ -37,39 +37,34 @@ generate_random_port
 
 echo "Selected random port: $PUBLIC_SERVICE_PORT"
 
-# Read .env file and get the value of CONSUL_SERVER variable
-CONSUL_SERVER=$(grep "CONSUL_SERVER" .env | cut -d '=' -f2)
+# Read .env file and get the value of CONSUL_SERVER_IP variable
+CONSUL_SERVER_IP=$(grep "CONSUL_SERVER_IP" .env | cut -d '=' -f2)
 
-# Check if CONSUL_SERVER exists in the .env file
-if [[ -z "$CONSUL_SERVER" ]]; then
-    echo "Could not find the CONSUL_SERVER variable in the .env file."
+# Check if CONSUL_SERVER_IP exists in the .env file
+if [[ -z "$CONSUL_SERVER_IP" ]]; then
+    echo "Could not find the CONSUL_SERVER_IP variable in the .env file."
     exit 1
 fi
 
-echo "Using Consul Server IP address: $CONSUL_SERVER"
+echo "Using Consul Server IP address: $CONSUL_SERVER_IP"
 
-# Check if the Docker image user_service_image:latest exists
-if docker images user_service_image:latest --format "{{.Repository}}:{{.Tag}}" | grep -q "user_service_image:latest"; then
-    echo "Docker image user_service_image:latest already exists. Skipping docker build."
+# Check if the Docker image user-service-image:latest exists
+if docker images user-service-image:latest --format "{{.Repository}}:{{.Tag}}" | grep -q "user-service-image:latest"; then
+    echo "Docker image user-service-image:latest already exists. Skipping docker build."
 else
-    echo "Docker image user_service_image:latest does not exist. Starting docker build."
-    docker build -t user_service_image .
+    echo "Docker image user-service-image:latest does not exist. Starting docker build."
+    docker build -t user-service-image .
 fi
 
-# Check if a container named user_service exists
-if docker ps -a --format "{{.Names}}" | grep -q "^user_service$"; then
-    echo "Docker container user_service already exists. Removing the container."
-    docker rm -f user_service
-fi
 
 # Run a new container
-echo "Running a new container user_service."
+echo "Running a new container user-service."
 docker run -d \
---name user_service \
+--name user-service-${PUBLIC_SERVICE_IP}-${PUBLIC_SERVICE_PORT} \
 -p $PUBLIC_SERVICE_PORT:$PUBLIC_SERVICE_PORT \
 -e "CONSUL_LOCAL_CONFIG={\"leave_on_terminate\": true, \"ui_config\": {\"enabled\": true}}" \
--e CONSUL_SERVER=$CONSUL_SERVER \
+-e CONSUL_SERVER_IP=$CONSUL_SERVER_IP \
 -e PUBLIC_SERVICE_IP=$PUBLIC_SERVICE_IP \
 -e PUBLIC_SERVICE_PORT=$PUBLIC_SERVICE_PORT \
-user_service_image \
-sh -c "consul agent -node=user_service_node -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER -data-dir=/tmp/consul & python3 main.py"
+user-service-image \
+sh -c "consul agent -node=user_service_${PUBLIC_SERVICE_IP}_${PUBLIC_SERVICE_PORT} -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER_IP -data-dir=/tmp/consul & python3 main.py"
