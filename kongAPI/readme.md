@@ -1,3 +1,8 @@
+# Common:
+```console
+cd kongAPI
+```
+
 # Windows:
 - Create .env file:  
 **Note:** Override your value in the **.env** file

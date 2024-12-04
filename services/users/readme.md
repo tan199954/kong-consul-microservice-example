@@ -1,3 +1,7 @@
+# Common:
+```console
+cd services\users
+```
 # Windows:
 - Create .env file:  
 **Note:** Override your value in the **.env** file
