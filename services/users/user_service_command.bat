@@ -39,16 +39,16 @@ if not errorlevel 1 (
 REM Select the random port for PUBLIC_SERVICE_PORT
 echo "Selected random port: %PUBLIC_SERVICE_PORT%"
 
-REM Read the .env file and get the value of the CONSUL_SERVER variable
-for /f "delims=" %%i in ('findstr "CONSUL_SERVER" .env') do set %%i
+REM Read the .env file and get the value of the CONSUL_SERVER_ADDRESS variable
+for /f "delims=" %%i in ('findstr "CONSUL_SERVER_ADDRESS" .env') do set %%i
 
-REM Check if CONSUL_SERVER exists in the environment
-if "%CONSUL_SERVER%"=="" (
-    echo "Could not find the CONSUL_SERVER variable in the .env file."
+REM Check if CONSUL_SERVER_ADDRESS exists in the environment
+if "%CONSUL_SERVER_ADDRESS%"=="" (
+    echo "Could not find the CONSUL_SERVER_ADDRESS variable in the .env file."
     exit /b 1
 )
 
-echo "Using Consul Server IP address: %CONSUL_SERVER%"
+echo "Using Consul Server IP address: %CONSUL_SERVER_ADDRESS%"
 
 REM Check if the Docker image user-service_image:latest exists
 docker images user-service-image:latest --format "{{.Repository}}:{{.Tag}}" | findstr "user-service-image:latest" > nul
@@ -66,8 +66,8 @@ docker run -d ^
 --name user-service-%PUBLIC_SERVICE_ADDRESS%-%PUBLIC_SERVICE_PORT% ^
 -p %PUBLIC_SERVICE_PORT%:%PUBLIC_SERVICE_PORT% ^
 -e "CONSUL_LOCAL_CONFIG={\"leave_on_terminate\": true, \"ui_config\": {\"enabled\": true}}" ^
--e CONSUL_SERVER=%CONSUL_SERVER% ^
+-e CONSUL_SERVER_ADDRESS=%CONSUL_SERVER_ADDRESS% ^
 -e PUBLIC_SERVICE_ADDRESS=%PUBLIC_SERVICE_ADDRESS% ^
 -e PUBLIC_SERVICE_PORT=%PUBLIC_SERVICE_PORT% ^
 user-service-image ^
-sh -c "consul agent -node=user_service_${PUBLIC_SERVICE_ADDRESS}_${PUBLIC_SERVICE_PORT} -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER -data-dir=/tmp/consul & python3 main.py"
+sh -c "consul agent -node=user_service_${PUBLIC_SERVICE_ADDRESS}_${PUBLIC_SERVICE_PORT} -bind=0.0.0.0 -client=0.0.0.0 -retry-join=$CONSUL_SERVER_ADDRESS -data-dir=/tmp/consul & python3 main.py"
